@@ -80,6 +80,7 @@
 */
 
 #include "utils.h"
+#include <algorithm>
 
 void your_histogram_and_prefixsum(const float* const d_logLuminance,
                                   unsigned int* const d_cdf,
@@ -99,6 +100,32 @@ void your_histogram_and_prefixsum(const float* const d_logLuminance,
     4) Perform an exclusive scan (prefix sum) on the histogram to get
        the cumulative distribution of luminance values (this should go in the
        incoming d_cdf pointer which already has been allocated for you)       */
+  // Step 1, parallel Minmax reduce
+  size_t arraySize = numRows * numCols;
+  int K = 512;
+  const dim3 gridSize = ((arraySize + K - 1) / K, 1, 1);
+  const dim3 blockSize = (K, 1, 1);
+
+  parallelMinMaxReduce(d_logLuminance, arraySize, min_logLum, max_LogLum);
 
 
+}
+
+void parallelMinMaxReduce(const float* const d_logLuminance, 
+                          const size_t arraySize, 
+                          float &min_logLum, 
+                          float &max_LogLum)
+{
+  int K = 1024;
+  const dim3 gridSize = ((arraySize + K - 1) / K, 1, 1);
+  const dim3 blockSize = (K, 1, 1);
+  
+}
+
+__global__ void shmemMinMaxReducePerBlock(const float* d_logLuminance,
+                                          float &max,
+                                          float &min)
+{
+   int tid = threadIdx.x;
+     
 }
