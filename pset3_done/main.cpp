@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "timer.h"
+#include <ctime>
 #include "utils.h"
 #include <string>
 #include <stdio.h>
@@ -108,8 +109,13 @@ int main(int argc, char **argv) {
     max_logLum = std::max(h_luminance[i], max_logLum);
   }
 
+  std::clock_t start;
+  double duration;
+  start = std::clock();  
   referenceCalculation(h_luminance, h_cdf, numRows, numCols, numBins, min_logLum, max_logLum);
-
+  start = std::clock() - start;
+  duration = (double)(start) / (double) CLOCKS_PER_SEC * 1000;
+  printf("tickes %d Ref = %lf\n", (int)start, duration);
   checkCudaErrors(cudaMemcpy(d_cdf, h_cdf, sizeof(unsigned int) * numBins, cudaMemcpyHostToDevice));
 
   //check results and output the tone-mapped image
