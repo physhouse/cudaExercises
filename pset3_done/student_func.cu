@@ -201,6 +201,7 @@ __global__ void preSum(unsigned int* d_in, unsigned int* d_out, unsigned int* su
     int tid = threadIdx.x;
     int bid = blockIdx.x;
 
+    //calculate the sum of all numbers in the bid'th block and save it in sumBlocks
     if (tid == 0) sumBlocks[bid] = d_in[n*(bid+1) -1] + d_out[n*(bid+1) -1];
 }
 
@@ -225,6 +226,8 @@ static inline int nextPow2(int n)
     return n;
 }
 
+//Recursive parallel scan, this make sure that this algorithm works for arrays with any length
+// Using a sumblock[] and scanblock[] arrays to faccilitate this
 void parallelScan(unsigned int* d_in, unsigned int* d_out, size_t size)
 {
    int K = 512;
