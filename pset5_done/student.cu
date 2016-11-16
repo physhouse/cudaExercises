@@ -26,6 +26,8 @@
 
 
 #include "utils.h"
+#include <cstdio>
+#include <cstdlib>
 
 __global__
 void yourHisto(const unsigned int* const vals, //INPUT
@@ -38,6 +40,29 @@ void yourHisto(const unsigned int* const vals, //INPUT
   //Although we provide only one kernel skeleton,
   //feel free to use more if it will help you
   //write faster code
+  extern __shared__ unsigned int blockHisto[];
+  int tid = threadIdx.x;
+  blockHisto[4*tid] = 0;
+  blockHisto[4*tid+1] = 0;
+  blockHisto[4*tid+2] = 0;
+  blockHisto[4*tid+3] = 0;
+  __syncthreads();
+
+  int thid = threadIdx.x + blockIdx.x * blockDim.x;
+  if (4*thid < numVals)
+  {
+     atomicAdd(&blockHisto[vals[4*thid]], 1);
+     atomicAdd(&blockHisto[vals[4*thid+1]], 1);
+     atomicAdd(&blockHisto[vals[4*thid+2]], 1);
+     atomicAdd(&blockHisto[vals[4*thid+3]], 1);
+  }
+  __syncthreads();
+
+  atomicAdd(&histo[4*tid], blockHisto[4*tid]);
+  atomicAdd(&histo[4*tid+1], blockHisto[4*tid+1]);
+  atomicAdd(&histo[4*tid+2], blockHisto[4*tid+2]);
+  atomicAdd(&histo[4*tid+3], blockHisto[4*tid+3]);
+  __syncthreads();
 }
 
 void computeHistogram(const unsigned int* const d_vals, //INPUT
@@ -46,6 +71,11 @@ void computeHistogram(const unsigned int* const d_vals, //INPUT
                       const unsigned int numElems)
 {
   //TODO Launch the yourHisto kernel
+  int K = 256;
+  dim3 gridSize((numElems/4 + K - 1) / K, 1, 1);
+  dim3 blockSize(K, 1, 1);
+  int sharedMem = numBins * sizeof(unsigned int);
+  yourHisto<<<gridSize, blockSize, sharedMem>>>(d_vals, d_histo, numElems);
 
   //if you want to use/launch more than one kernel,
   //feel free
