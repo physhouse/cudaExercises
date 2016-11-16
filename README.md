@@ -1,2 +1,2 @@
 # cudaExercises
-Excercises of simple cuda programming
+Excercises of simple cuda programming (Udacity CS344)
