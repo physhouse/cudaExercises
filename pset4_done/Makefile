@@ -1,5 +1,5 @@
-NVCC=/usr/local/cuda-5.0/bin/nvcc
-#NVCC=nvcc
+#NVCC=/usr/local/cuda-5.0/bin/nvcc
+NVCC=nvcc
 
 ###################################
 # These are the default install   #
@@ -18,7 +18,7 @@ OPENCV_INCLUDEPATH=/usr/include
 
 OPENCV_LIBS=-lopencv_core -lopencv_imgproc -lopencv_highgui
 
-CUDA_INCLUDEPATH=/usr/local/cuda-5.0/include
+CUDA_INCLUDEPATH=/software/cuda-7.5-el6-x86_64/include/
 # CUDA_INCLUDEPATH=/usr/local/cuda/lib64/include
 # CUDA_INCLUDEPATH=/usr/local/cuda-5.0/include
 # CUDA_INCLUDEPATH=/Developer/NVIDIA/CUDA-5.0/include
@@ -29,7 +29,7 @@ CUDA_INCLUDEPATH=/usr/local/cuda-5.0/include
 
 #CUDA_INCLUDEPATH=/usr/local/cuda/include
 #CUDA_LIBPATH=/usr/local/cuda/lib
-CUDA_LIBPATH=/usr/local/cuda-5.0/lib64
+CUDA_LIBPATH=/software/cuda-7.5-el6-x86_64/lib64
 
 NVCC_OPTS=-O3 -arch=sm_20 -Xcompiler -Wall -Xcompiler -Wextra -m64
 

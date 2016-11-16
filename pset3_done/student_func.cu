@@ -151,15 +151,23 @@ __global__ void histogramKernel(const float* const d_in, unsigned int* d_histo, 
    }
 }
 
-__global__ void excScan(unsigned int* d_in, unsigned int* d_out, int n)
+__global__ void excScan(unsigned int* d_in, unsigned int* d_out, int size)
 {
    //Blelloch implementation of exclusive scan
    extern __shared__ int temp[];
    int thid = blockDim.x * blockIdx.x + threadIdx.x;
    int tid = threadIdx.x;
+   int n = blockDim.x * 2;
 
-   temp[2*tid] = d_in[2 * thid];
-   temp[2*tid + 1] = d_in[2*thid + 1];
+   if (2*thid < size)
+     temp[2*tid] = d_in[2 * thid];
+   else
+     temp[2*tid] = 0;
+  
+   if (2*thid + 1 < size)
+     temp[2*tid + 1] = d_in[2*thid + 1];
+   else
+     temp[2*tid + 1] = 0;
 
    int offset = 1;
    for (int d = n >> 1; d>0; d >>= 1)
@@ -191,9 +199,11 @@ __global__ void excScan(unsigned int* d_in, unsigned int* d_out, int n)
       offset >>= 1;
    }
    __syncthreads();
-   
-   d_out[2*thid] = temp[2*tid];
-   d_out[2*thid + 1] = temp[2*tid + 1];
+ 
+   if (2*thid < size)  
+     d_out[2*thid] = temp[2*tid];
+   if (2*thid + 1 < size)
+     d_out[2*thid + 1] = temp[2*tid + 1];
 }
 
 __global__ void preSum(unsigned int* d_in, unsigned int* d_out, unsigned int* sumBlocks, int n)
